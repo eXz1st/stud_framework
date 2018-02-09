@@ -36,7 +36,7 @@ class Router
                 $path = $routeData['path'];
                 $pattern = $this->transformToRegexp($path);
                 if(preg_match($pattern, $this->request->getUri(), $matches)){
-                    if(!empty($routeData['method']) && strtoupper($this->request->getMethod()) != strtoupper($routeData['method'])) {
+                    if(!empty($routeData['method']) && $this->request->getMethod() != strtoupper($routeData['method'])) {
                         continue;
                     }
                     $result = $routeData;
@@ -56,8 +56,8 @@ class Router
      *
      * @return  string
      */
-    public function buildRoute($name, $params = []): string {
-
+    public function buildRoute($name, $params = []): string{
+        // @TODO: Implement this
     }
     /**
      * Transform route path to regexp
