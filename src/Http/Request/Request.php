@@ -111,8 +111,38 @@ class Request
      *
      * @return mixed
      */
-    public function filterVar($data, string $type = 'raw') {
-        //@TODO: Add some filtration for data here!
+    function filterVar($data, string $type = 'raw') {
+        $signs = array("+", "-");
+
+        switch(strtoupper($type)) {
+            case 'INT':
+            case 'INTEGER':
+                $data = str_replace($signs, "", filter_var($data, FILTER_SANITIZE_NUMBER_INT));
+                break;
+            case 'FLOAT':
+            case 'DOUBLE':
+                $data = str_replace($signs, "", filter_var($data, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION));
+                break;
+            case 'BOOL':
+            case 'BOOLEAN':
+                $data = filter_var($data, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+                break;
+            case 'EMAIL':
+            case 'E-MAIL':
+                $data = filter_var($data, FILTER_SANITIZE_EMAIL);
+                break;
+            case 'URL':
+                $data = filter_var($data, FILTER_SANITIZE_ENCODED);
+                break;
+            case 'STRING':
+                $data = filter_var($data, FILTER_SANITIZE_STRING);
+                break;
+            case 'RAW':
+                break;
+            default:
+                $data = null;
+                break;
+        }
         return $data;
     }
 }
