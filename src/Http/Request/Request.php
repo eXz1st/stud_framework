@@ -8,6 +8,10 @@ namespace Mindk\Framework\Http\Request;
 class Request
 {
     /**
+     * @var Object instance
+     */
+    private static $_instance;
+    /**
      * @var array   Http headers
      */
     public $headers = null;
@@ -18,7 +22,7 @@ class Request
     /**
      * Request constructor.
      */
-    public function __construct()
+    private function __construct()
     {
         $headers = [];
         // Parse and cache HTTP headers
@@ -46,6 +50,29 @@ class Request
         $this->headers  = new \ArrayObject($headers, \ArrayObject::ARRAY_AS_PROPS);
         $this->raw_data = new \ArrayObject($raw_data, \ArrayObject::ARRAY_AS_PROPS);
     }
+
+    /**
+     * Create|Get object instance
+     * @return Request|Object
+     */
+    public static function getInstance() {
+        if (self::$_instance === null) {
+            self::$_instance = new self;
+        }
+        return self::$_instance;
+    }
+
+    /**
+     * Disable object cloning
+     */
+    private function __clone() { }
+
+    /**
+     * Disable object wakeup
+     */
+    private function __wakeup() { }
+
+
     /**
      * Get request Uri
      *
