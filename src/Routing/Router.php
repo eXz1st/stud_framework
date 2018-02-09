@@ -17,6 +17,10 @@ class Router
      */
     protected $map;
     /**
+     * @var Generated URL
+     */
+    protected $buildUrl = '';
+    /**
      * Router constructor.
      *
      * @param $mapping Route mapping
@@ -56,8 +60,17 @@ class Router
      *
      * @return  string
      */
-    public function buildRoute($name, $params = []): string{
-        // @TODO: Implement this
+    public function buildRoute($name, $params = []): string {
+        if (array_key_exists($name, $this->map)) {
+            $this->buildUrl = $this->map[$name]['path'];
+            if (count($params) > 0) {
+                foreach ($params as $key => $value) {
+                    $this->buildUrl = str_replace("{{$key}}", $value, $this->buildUrl);
+                }
+                $this->buildUrl = str_replace(['{', '}'], '', $this->buildUrl);
+            }
+        }
+        return $this->buildUrl;
     }
     /**
      * Transform route path to regexp
