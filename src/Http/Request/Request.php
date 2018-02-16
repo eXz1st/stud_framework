@@ -8,6 +8,10 @@ namespace Mindk\Framework\Http\Request;
 class Request
 {
     /**
+     * @var Object instance
+     */
+    private static $_instance;
+    /**
      * @var array   Http headers
      */
     public $headers = null;
@@ -18,7 +22,7 @@ class Request
     /**
      * Request constructor.
      */
-    public function __construct()
+    private function __construct()
     {
         $headers = [];
         // Parse and cache HTTP headers
@@ -46,6 +50,29 @@ class Request
         $this->headers  = new \ArrayObject($headers, \ArrayObject::ARRAY_AS_PROPS);
         $this->raw_data = new \ArrayObject($raw_data, \ArrayObject::ARRAY_AS_PROPS);
     }
+
+    /**
+     * Create|Get object instance
+     * @return Request|Object
+     */
+    public static function getInstance() {
+        if (self::$_instance === null) {
+            self::$_instance = new self;
+        }
+        return self::$_instance;
+    }
+
+    /**
+     * Disable object cloning
+     */
+    private function __clone() { }
+
+    /**
+     * Disable object wakeup
+     */
+    private function __wakeup() { }
+
+
     /**
      * Get request Uri
      *
@@ -111,8 +138,38 @@ class Request
      *
      * @return mixed
      */
-    public function filterVar($data, string $type = 'raw') {
-        //@TODO: Add some filtration for data here!
+    function filterVar($data, string $type = 'raw') {
+        $signs = array("+", "-");
+
+        switch(strtoupper($type)) {
+            case 'INT':
+            case 'INTEGER':
+                $data = str_replace($signs, "", filter_var($data, FILTER_SANITIZE_NUMBER_INT));
+                break;
+            case 'FLOAT':
+            case 'DOUBLE':
+                $data = str_replace($signs, "", filter_var($data, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION));
+                break;
+            case 'BOOL':
+            case 'BOOLEAN':
+                $data = filter_var($data, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+                break;
+            case 'EMAIL':
+            case 'E-MAIL':
+                $data = filter_var($data, FILTER_SANITIZE_EMAIL);
+                break;
+            case 'URL':
+                $data = filter_var($data, FILTER_SANITIZE_ENCODED);
+                break;
+            case 'STRING':
+                $data = filter_var($data, FILTER_SANITIZE_STRING);
+                break;
+            case 'RAW':
+                break;
+            default:
+                $data = null;
+                break;
+        }
         return $data;
     }
 }
