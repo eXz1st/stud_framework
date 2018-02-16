@@ -26,7 +26,7 @@ class App
      * Run the app
      */
     public function run(){
-        $request = new Request();
+        $request = Request::getInstance();
         $router = new Router($request, $this->config['routes'] );
         $route = $router->findRoute();
         if($route instanceof Route){
