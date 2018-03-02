@@ -21,6 +21,13 @@ class App
     public function __construct(array $config)
     {
         $this->config = $config;
+
+        $db = new \PDO(sprintf('mysql:host=%s;dbname=%s;', $this->config['db_host'], $this->config['db_name'] ),
+                $this->config['db_user'],
+            $this->config['db_pass']
+        );
+
+        Service::set('db', $db);
     }
     /**
      * Run the app
