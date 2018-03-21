@@ -1,5 +1,6 @@
 <?php
 namespace Mindk\Framework\Routing;
+use Mindk\Framework\Exceptions\NotFoundException;
 use Mindk\Framework\Http\Request\Request;
 use Mindk\Framework\Routing\Route;
 /**
