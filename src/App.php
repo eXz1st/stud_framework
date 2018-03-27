@@ -6,7 +6,8 @@ use Mindk\Framework\Routing\Router;
 use Mindk\Framework\Http\Request\Request;
 use Mindk\Framework\Http\Response\Response;
 use Mindk\Framework\Http\Response\JsonResponse;
-use Mindk\Framework\DI\Service;
+use Mindk\Framework\Config\Config;
+use Mindk\Framework\DI\Injector;
 /**
  * Application class
  */
@@ -15,38 +16,32 @@ class App
     /**
      * @var array   Config cache
      */
-    protected $config = [];
+    protected $config = null;
     /**
      * App constructor.
      * @param $config
      */
     public function __construct(array $config)
     {
-        $this->config = $config;
-
-        $db = new \PDO(sprintf('mysql:host=%s;dbname=%s;', $this->config['db_host'], $this->config['db_name'] ),
-            $this->config['db_user'],
-            $this->config['db_pass']
-        );
-
-        Service::set('db', $db);
+        $this->config = new Config($config);
+        Injector::setConfig($this->config);
     }
     /**
      * Run the app
      */
     public function run(){
         try {
-            $request = Request::getInstance();
-            $router = new Router($request, $this->config['routes']);
+            $router = Injector::make('router', ['mapping' => $this->config->get('routes', []) ] );
             $route = $router->findRoute();
             if ($route instanceof Route) {
                 $controllerReflection = new \ReflectionClass($route->controller);
                 if ($controllerReflection->hasMethod($route->action)) {
-                    $controller = $controllerReflection->newInstance();
+                    $controller = Injector::make($route->controller);
                     $methodReflection = $controllerReflection->getMethod($route->action);
 
                     // Get response from responsible controller:
-                    $response = $methodReflection->invokeArgs($controller, $route->params);
+                    $paramset = Injector::resolveParams($methodReflection->getParameters(), $route->params);
+                    $response = $methodReflection->invokeArgs($controller, $paramset);
 
                     // Ensure it's Response subclass or wrap with JsonResponse:
                     if (!($response instanceof Response)) {
