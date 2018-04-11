@@ -20,11 +20,38 @@ class GenericConnector implements DBOConnectorInterface
         );
     }
     /**
+     * Prepare SQL query
+     */
+    public function prepareQuery($sql) {
+        if($this->connection){
+            $this->statement = $this->connection->prepare($sql);
+        }
+        return $this;
+    }
+    /**
+     * Execute data
+     */
+    public function executeData($data) {
+        if($this->connection){
+            $this->statement = $this->statement->execute(array_values($data));
+        }
+        return $this;
+    }
+    /**
      * Set SQL query
      */
     public function setQuery($sql) {
         if($this->connection){
             $this->statement = $this->connection->query($sql);
+        }
+        return $this;
+    }
+    /**
+     * Exec SQL query
+     */
+    public function execQuery($sql) {
+        if($this->connection){
+            $this->statement = $this->connection->exec($sql);
         }
         return $this;
     }
@@ -37,8 +64,14 @@ class GenericConnector implements DBOConnectorInterface
      */
     public function getResult(&$target) {
         if($this->statement){
-            $this->statement->setFetchMode( \PDO::FETCH_INTO, $target );
-            $result = $this->statement->fetch( \PDO::FETCH_INTO );
+            if(is_int($this->statement)) {
+                $result = $this->statement;
+            } else if(is_bool($this->statement)) {
+                $result = $this->statement;
+            } else {
+                $this->statement->setFetchMode( \PDO::FETCH_INTO, $target );
+                $result = $this->statement->fetch( \PDO::FETCH_INTO );
+            }
         } else {
             $result = null;
         }
