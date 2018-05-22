@@ -34,10 +34,10 @@ abstract class Model
      */
     public function create( $data ) {
         $keys = array_keys($data);
+
         $fields = '`' . implode('`, `', $keys) . '`';
         $placeholder = substr(str_repeat('?, ', count($keys)), 0, -2);
         $sql = "INSERT INTO `" . $this->tableName ."`(". $fields .") VALUES (" . $placeholder . " )";
-
         return $this->dbo->prepareQuery($sql)->executeData($data)->getResult($this);
     }
     /**
@@ -49,7 +49,7 @@ abstract class Model
      */
     public function load( $id ) {
         $sql = 'SELECT * FROM `' . $this->tableName .
-            '` WHERE `'.$this->primaryKey.'`='.(int)$id; //!
+            '` WHERE `'.$this->primaryKey.'`='.(int)$id;
         return $this->dbo->setQuery($sql)->getResult($this);
     }
     /**
@@ -58,13 +58,10 @@ abstract class Model
      * @return bool
      */
     public function save() {
-
         $sql = "UPDATE `" . $this->tableName . "` SET";
-
         $class_vars = (array)get_class_vars(get_class($this));
         $object_vars = (array) get_object_vars($this);
         $data = null;
-
 
         for(reset($class_vars); ($class_var_key = key($class_vars)); next($class_vars)) {
             for (reset($object_vars); ($object_var_key = key($object_vars)); next($object_vars)) {
@@ -82,9 +79,7 @@ abstract class Model
                 $sql .= " " . $object_var_key . " = ?,";
             }
         }
-
         $sql = substr($sql, 0, -1);
-
         $sql .= " WHERE `" . $this->primaryKey . "` = " . $this->id;
 
         return $this->dbo->prepareQuery($sql)->executeData($data)->getResult($this);

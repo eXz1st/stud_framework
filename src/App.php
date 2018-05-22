@@ -33,6 +33,7 @@ class App
             $router = Injector::make('router', ['mapping' => $this->config->get('routes', []) ] );
             $route = $router->findRoute();
             $middlewareGateway = new RouteMiddlewareGateway($this->config->get('middleware'));
+
             if($route instanceof Route){
                 $response = $middlewareGateway->handle($route, function($object) {
                     return $this->processRoute($object);
@@ -67,6 +68,11 @@ class App
             // Get response from responsible controller:
             $paramset = Injector::resolveParams($methodReflection->getParameters(), $route->params);
             $response = $methodReflection->invokeArgs($controller, $paramset);
+
+            // Ensure it's Response subclass or wrap with JsonResponse:
+            if(!($response instanceof Response)){
+                $response = new JsonResponse($response);
+            }
         } else {
             throw new \Exception('Bad controller action');
         }
