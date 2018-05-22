@@ -12,5 +12,7 @@
         "psr-4": {"Mindk\\Framework\\": "src/"}
     },
     "minimum-stability": "dev",
-    "require": {}
+    "require": {
+        "optimus/onion": "~1.0"
+    }
 }
